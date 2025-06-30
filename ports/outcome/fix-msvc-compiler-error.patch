@@ -1,0 +1,53 @@
+From 0c8516e0992bf28ee10683ca99e5009b19891a88 Mon Sep 17 00:00:00 2001
+From: apt-get <me@apt-get.xyz>
+Date: Tue, 1 Jul 2025 01:25:32 +0200
+Subject: [PATCH] fix on vcpkg ver
+
+---
+ include/outcome/detail/coroutine_support.ipp | 2 ++
+ single-header/outcome.hpp                    | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/include/outcome/detail/coroutine_support.ipp b/include/outcome/detail/coroutine_support.ipp
+index eefea10..06585b0 100644
+--- a/include/outcome/detail/coroutine_support.ipp
++++ b/include/outcome/detail/coroutine_support.ipp
+@@ -132,6 +132,7 @@ namespace awaitables
+     OUTCOME_TREQUIRES(OUTCOME_TPRED(OUTCOME_V2_NAMESPACE::detail::is_constructible<U, T>))
+     inline bool try_set_error(T &&e, U *result)
+     {
++      using V = U; // Workaround for MSVC 16.28 compiler error in C++20 mode
+       new(result) U(static_cast<T &&>(e));
+       return true;
+     }
+@@ -143,6 +144,7 @@ namespace awaitables
+     OUTCOME_TREQUIRES(OUTCOME_TPRED(OUTCOME_V2_NAMESPACE::detail::is_constructible<U, T>))
+     inline void set_or_rethrow(T &e, U *result)
+     {
++      using V = U; // Workaround for MSVC 16.28 compiler error in C++20 mode
+       new(result) U(e);
+     }
+     template <class T> inline void set_or_rethrow(T &e, ...)
+diff --git a/single-header/outcome.hpp b/single-header/outcome.hpp
+index 0e63bfd..d48be73 100644
+--- a/single-header/outcome.hpp
++++ b/single-header/outcome.hpp
+@@ -1897,6 +1897,7 @@ namespace awaitables
+     OUTCOME_TREQUIRES(OUTCOME_TPRED(OUTCOME_V2_NAMESPACE::detail::is_constructible<U, T>))
+     inline bool try_set_error(T &&e, U *result)
+     {
++      using V = U; // Workaround for MSVC 16.28 compiler error in C++20 mode
+       new(result) U(static_cast<T &&>(e));
+       return true;
+     }
+@@ -1908,6 +1909,7 @@ namespace awaitables
+     OUTCOME_TREQUIRES(OUTCOME_TPRED(OUTCOME_V2_NAMESPACE::detail::is_constructible<U, T>))
+     inline void set_or_rethrow(T &e, U *result)
+     {
++      using V = U; // Workaround for MSVC 16.28 compiler error in C++20 mode
+       new(result) U(e);
+     }
+     template <class T> inline void set_or_rethrow(T &e, ...)
+-- 
+2.34.1
+
